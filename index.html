@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bingo Online Automático</title>
+<style>
+  /* Seu CSS em vermelho escuro, igual ao código anterior */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #8B0000 0%, #B22222 100%);
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 18px; /* Aumentado tamanho base da fonte */
+  }
+  .container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .header { text-align: center; margin-bottom: 30px; }
+  .header h1 { color: #8B0000; font-size: 3em; margin-bottom: 10px; } /* Aumentado de 2.5em para 3em */
+  .header p { font-size: 20px; } /* Aumentado tamanho da descrição */
+  .status-banner {
+    background: #fdeaea;
+    border: 2px solid #8B0000;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .status-banner.active { background: #e8f5e8; border-color: #4caf50; }
+  .status-banner.expired { background: #ffeaa7; border-color: #fdcb6e; }
+  .status-text { font-size: 20px; font-weight: bold; color: #8B0000; } /* Aumentado de 18px para 20px */
+  .timer-display { font-size: 18px; color: #666; margin-top: 5px; } /* Aumentado de 16px para 18px */
+  .sorteador-panel {
+    background: #f8f9fa;
+    border: 3px solid #8B0000;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .sorteador-title {
+    color: #8B0000;
+    font-size: 2.2em; /* Aumentado de 1.8em para 2.2em */
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  .sorteador-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .password-input {
+    padding: 12px;
+    border: 2px solid #8B0000;
+    border-radius: 8px;
+    font-size: 18px; /* Aumentado de 16px para 18px */
+    width: 200px;
+    outline: none;
+  }
+  .unlock-btn {
+    padding: 12px 20px;
+    background: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px; /* Aumentado de 16px para 18px */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .unlock-btn:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+  }
+  .start-btn {
+    padding: 15px 30px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px; /* Aumentado de 18px para 20px */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .start-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+  }
+  .start-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .clear-btn {
+    padding: 15px 30px;
+    background: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px; /* Aumentado de 18px para 20px */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .clear-btn:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+  }
+  .sorteador-status {
+    font-size: 20px; /* Aumentado de 18px para 20px */
+    font-weight: bold;
+    color: #8B0000;
+    margin-bottom: 15px;
+  }
+  .locked-message {
+    color: #f44336;
+    font-size: 18px; /* Aumentado de 16px para 18px */
+    margin-top: 10px;
+  }
+  .unlocked-message {
+    color: #4caf50;
+    font-size: 18px; /* Aumentado de 16px para 18px */
+    margin-top: 10px;
+  }
+  .sorteio-display {
+    background: #faeaea;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .sorteio-display h3 {
+    color: #8B0000;
+    font-size: 1.8em; /* Aumentado de 1.5em para 1.8em */
+    margin-bottom: 20px;
+  }
+  .numbers-drawn {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .number-ball {
+    width: 70px; /* Aumentado de 60px para 70px */
+    height: 70px; /* Aumentado de 60px para 70px */
+    background: #8B0000;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px; /* Aumentado de 20px para 26px */
+    font-weight: bold;
+    animation: bounce 0.5s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  @keyframes bounce {
+    0%,20%,50%,80%,100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+  .progress-bar {
+    width: 100%;
+    height: 25px;
+    background: #ddd;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .progress-text {
+    font-size: 20px; /* Aumentado de 18px para 20px */
+    color: #8B0000;
+    font-weight: bold;
+  }
+  .cartelas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Aumentado de 280px para 320px */
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .cartela {
+    background: #8B0000;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  .cartela:hover {
+    transform: translateY(-5px);
+  }
+  .cartela-header {
+    color: white;
+    text-align: center;
+    font-size: 24px; /* Aumentado de 20px para 24px */
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  .cartela-numbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Mudado de 5 para 4 colunas para 16 números */
+    gap: 8px;
+  }
+  .cartela-number {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 28px; /* Aumentado de 24px para 28px */
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  .cartela-number.marked {
+    background: #4caf50;
+    animation: pulse 0.6s ease;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .cartela-score {
+    color: white;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 20px; /* Aumentado de 18px para 20px */
+    font-weight: bold;
+  }
+  .winner-highlight {
+    box-shadow: 0 0 30px #ffd700;
+    border: 3px solid #ffd700;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { box-shadow: 0 0 30px #ffd700; }
+    to { box-shadow: 0 0 45px #ffd700; }
+  }
+  .results {
+    background: #e8f5e8;
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 30px;
+    display: none;
+  }
+  .results h2 {
+    color: #2e7d32;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2.4em; /* Aumentado de 2em para 2.4em */
+  }
+  .winner-info {
+    background: #4caf50;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 28px; /* Aumentado de 24px para 28px */
+    font-weight: bold;
+  }
+  .cartela-result {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    font-size: 24px; /* Aumentado de 22px para 24px */
+    font-weight: bold;
+  }
+  .cartela-winner {
+    background: #4caf50;
+    color: white;
+  }
+  .cartela-normal {
+    background: #f5f5f5;
+    color: black;
+  }
+  @media (max-width: 768px) {
+    .cartelas-grid {
+      grid-template-columns: 1fr;
+    }
+    .sorteador-controls {
+      flex-direction: column;
+      align-items: center;
+    }
+    .password-input {
+      width: 250px;
+    }
+    .number-ball {
+      width: 60px; /* Aumentado de 50px para 60px */
+      height: 60px; /* Aumentado de 50px para 60px */
+      font-size: 22px; /* Aumentado de 16px para 22px */
+    }
+    .cartela-numbers {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .cartela-number {
+      font-size: 24px; /* Tamanho menor para mobile */
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🎱 Bingo Online Automático</h1>
+    <p>Sistema com 12 cartelas - Sorteio de 12 números (1 a 90)</p>
+  </div>
+
+  <!-- Status Banner -->
+  <div id="statusBanner" class="status-banner">
+    <div id="statusText" class="status-text">Carregando...</div>
+    <div id="timerDisplay" class="timer-display"></div>
+  </div>
+
+  <!-- Painel do Sorteador -->
+  <div class="sorteador-panel">
+    <div class="sorteador-title">🎲 Painel do Sorteador</div>
+
+    <div id="lockedPanel">
+      <div class="sorteador-status">Sorteador Bloqueado</div>
+      <div class="sorteador-controls">
+        <input type="password" id="passwordInput" class="password-input" placeholder="Digite a senha para desbloquear" />
+        <button onclick="unlockSorteador()" class="unlock-btn">🔓 Desbloquear</button>
+      </div>
+      <div id="errorMessage" class="locked-message"></div>
+    </div>
+
+    <div id="unlockedPanel" style="display:none;">
+      <div class="sorteador-status">Sorteador Desbloqueado</div>
+      <div class="sorteador-controls">
+        <button id="startBtn" onclick="startGame()" class="start-btn">🎯 Iniciar Sorteio</button>
+        <button id="clearBtn" onclick="clearSavedGame()" class="clear-btn">🗑️ Limpar Sorteio</button>
+      </div>
+      <div class="unlocked-message">✅ Sorteador pronto para uso!</div>
+    </div>
+  </div>
+
+  <!-- Display do Sorteio -->
+  <div class="sorteio-display">
+    <h3>🎯 Números Sorteados</h3>
+    <div id="numbersDrawn" class="numbers-drawn">
+      <div style="color: #666; font-size: 18px;">Aguardando início do sorteio...</div>
+    </div>
+    <div class="progress-bar">
+      <div id="progressFill" class="progress-fill"></div>
+    </div>
+    <div id="progressText" class="progress-text">0 de 12 números sorteados</div>
+  </div>
+
+  <!-- Cartelas -->
+  <div id="cartelasGrid" class="cartelas-grid"></div>
+
+  <!-- Resultados -->
+  <div id="results" class="results">
+    <h2>🏆 Resultados do Sorteio</h2>
+    <div id="winnersInfo"></div>
+  </div>
+</div>
+
+<script>
+  // Função para falar texto em voz feminina pt-BR
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      let utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      let voices = window.speechSynthesis.getVoices();
+      // Tenta achar voz feminina pt-BR
+      let voz = voices.find(v => v.lang === 'pt-BR' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('mulher')));
+      if (!voz) voz = voices.find(v => v.lang === 'pt-BR');
+      if (voz) utterance.voice = voz;
+      utterance.rate = 1;
+      utterance.pitch = 1.1;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  const PASSWORD = "102030Aa";
+  const GAME_DURATION = 3 * 60 * 60 * 1000;
+  const STORAGE_KEY = 'bingo_game_data';
+
+  let sorteadorUnlocked = false;
+  let gameActive = false;
+  let drawnNumbers = [];
+  let cartelas = [];
+  let currentDraw = 0;
+  let displayTimer = null;
+  const TOTAL_DRAWS = 12;
+  const TOTAL_CARTELAS = 12;
+
+  window.onload = function() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {};
+    }
+    checkSavedGame();
+    startDisplayTimer();
+  };
+
+  document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') unlockSorteador();
+  });
+
+  function checkSavedGame() {
+    try {
+      const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      if (savedData.timestamp && savedData.gameData) {
+        const now = Date.now();
+        const timeElapsed = now - savedData.timestamp;
+        if (timeElapsed < GAME_DURATION) {
+          loadSavedGame(savedData.gameData);
+          updateStatusBanner('active', timeElapsed);
+          return;
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    initializeGame();
+    updateStatusBanner('waiting');
+  }
+
+  function loadSavedGame(gameData) {
+    drawnNumbers = gameData.drawnNumbers || [];
+    cartelas = gameData.cartelas || [];
+    currentDraw = gameData.currentDraw || 0;
+    gameActive = gameData.gameActive || false;
+    if (cartelas.length === 0) generateCartelas();
+    renderCartelas();
+    updateDrawnNumbers();
+    updateProgress();
+    if (gameData.gameCompleted) showResults(gameData.winners, gameData.maxScore);
+  }
+
+  function saveGame(gameCompleted = false, winners = [], maxScore = 0) {
+    const gameData = {
+      drawnNumbers,
+      cartelas,
+      currentDraw,
+      gameActive,
+      gameCompleted,
+      winners,
+      maxScore
+    };
+    const saveData = { timestamp: Date.now(), gameData };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+    } catch {}
+  }
+
+  function updateStatusBanner(status, timeElapsed = 0) {
+    const banner = document.getElementById('statusBanner');
+    const statusText = document.getElementById('statusText');
+    const timerDisplay = document.getElementById('timerDisplay');
+    banner.className = 'status-banner';
+    switch (status) {
+      case 'waiting':
+        statusText.textContent = '⏳ Aguardando novo sorteio';
+        timerDisplay.textContent = '';
+        break;
+      case 'active':
+        banner.classList.add('active');
+        statusText.textContent = '🎯 Sorteio ativo - Resultados disponíveis para todos!';
+        updateTimer(timeElapsed);
+        break;
+      case 'expired':
+        banner.classList.add('expired');
+        statusText.textContent = '⏰ Sorteio expirado - Pronto para novo sorteio';
+        timerDisplay.textContent = '';
+        break;
+    }
+  }
+
+  function updateTimer(timeElapsed) {
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timeRemaining = GAME_DURATION - timeElapsed;
+    if (timeRemaining <= 0) {
+      clearSavedGame();
+      return;
+    }
+    const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+    const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((timeRemaining % (60 * 1000)) / 1000);
+    timerDisplay.textContent = `Tempo restante: ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  function startDisplayTimer() {
+    displayTimer = setInterval(() => {
+      const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      if (savedData.timestamp) {
+        const timeElapsed = Date.now() - savedData.timestamp;
+        if (timeElapsed < GAME_DURATION) {
+          updateTimer(timeElapsed);
+        } else {
+          clearSavedGame();
+        }
+      }
+    }, 1000);
+  }
+
+  function unlockSorteador() {
+    const inputPassword = document.getElementById('passwordInput').value;
+    const errorMessage = document.getElementById('errorMessage');
+    if (inputPassword === PASSWORD) {
+      sorteadorUnlocked = true;
+      document.getElementById('lockedPanel').style.display = 'none';
+      document.getElementById('unlockedPanel').style.display = 'block';
+      errorMessage.textContent = '';
+    } else {
+      errorMessage.textContent = '❌ Senha incorreta! Tente novamente.';
+      document.getElementById('passwordInput').value = '';
+    }
+  }
+
+  function clearSavedGame() {
+    if (!sorteadorUnlocked) {
+      alert('❌ Desbloqueie o sorteador primeiro!');
+      return;
+    }
+    if (confirm('⚠️ Tem certeza que deseja limpar o sorteio atual? Esta ação não pode ser desfeita.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      initializeGame();
+      updateStatusBanner('waiting');
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('numbersDrawn').innerHTML = '<div style="color: #666; font-size: 18px;">Aguardando início do sorteio...</div>';
+      document.getElementById('progressFill').style.width = '0%';
+      document.getElementById('progressText').textContent = '0 de 12 números sorteados';
+      document.getElementById('results').style.display = 'none';
+      document.querySelectorAll('.winner-highlight').forEach(el => el.classList.remove('winner-highlight'));
+    }
+  }
+
+  function initializeGame() {
+    generateCartelas();
+    renderCartelas();
+    drawnNumbers = [];
+    currentDraw = 0;
+    gameActive = false;
+  }
+
+  function generateCartelaNumbers() {
+    const numbers = [];
+    while (numbers.length < 16) { // Mudado de 15 para 16 números
+      const num = Math.floor(Math.random() * 90) + 1;
+      if (!numbers.includes(num)) numbers.push(num);
+    }
+    return numbers.sort((a,b) => a-b);
+  }
+
+  function generateCartelas() {
+    cartelas = [];
+    for (let i=0; i<TOTAL_CARTELAS; i++) {
+      cartelas.push({ id: i+1, numbers: generateCartelaNumbers(), markedNumbers: [], score: 0 });
+    }
+  }
+
+  function renderCartelas() {
+    const grid = document.getElementById('cartelasGrid');
+    grid.innerHTML = '';
+    cartelas.forEach(cartela => {
+      const cartelaElement = document.createElement('div');
+      cartelaElement.className = 'cartela';
+      cartelaElement.id = `cartela-${cartela.id}`;
+      const numbersGrid = cartela.numbers.map(num => {
+        const markedClass = cartela.markedNumbers.includes(num) ? 'marked' : '';
+        return `<div class="cartela-number ${markedClass}" data-number="${num}">${num}</div>`;
+      }).join('');
+      cartelaElement.innerHTML = `
+        <div class="cartela-header">Cartela ${cartela.id}</div>
+        <div class="cartela-numbers">${numbersGrid}</div>
+        <div class="cartela-score">Acertos: ${cartela.score}</div>
+      `;
+      grid.appendChild(cartelaElement);
+    });
+  }
+
+  function startGame() {
+    if (!sorteadorUnlocked) {
+      alert('❌ Desbloqueie o sorteador primeiro!');
+      return;
+    }
+    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (savedData.timestamp) {
+      const timeElapsed = Date.now() - savedData.timestamp;
+      if (timeElapsed < GAME_DURATION) {
+        alert('⚠️ Já existe um sorteio ativo! Aguarde a expiração ou use "Limpar Sorteio".');
+        return;
+      }
+    }
+    if (gameActive) return;
+    gameActive = true;
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('results').style.display = 'none';
+    drawnNumbers = [];
+    currentDraw = 0;
+    cartelas.forEach(c => { c.markedNumbers = []; c.score = 0; });
+    renderCartelas();
+    updateProgress();
+    updateStatusBanner('active', 0);
+
+    speak("Vai começar o sorteio de 12 números!");
+
+    drawNumbers();
+  }
+
+  function drawNumbers() {
+    const drawInterval = setInterval(() => {
+      if (currentDraw >= TOTAL_DRAWS) {
+        clearInterval(drawInterval);
+        endGame();
+        return;
+      }
+      let newNumber;
+      do {
+        newNumber = Math.floor(Math.random() * 90) + 1;
+      } while (drawnNumbers.includes(newNumber));
+      drawnNumbers.push(newNumber);
+      currentDraw++;
+      setTimeout(() => speak("Número " + newNumber), 500);
+      updateDrawnNumbers();
+      updateProgress();
+      markNumberInCartelas(newNumber);
+      saveGame();
+    }, 2000);
+  }
+
+  function updateDrawnNumbers() {
+    const container = document.getElementById('numbersDrawn');
+    container.innerHTML = '';
+    drawnNumbers.forEach((num, index) => {
+      const numberBall = document.createElement('div');
+      numberBall.className = 'number-ball';
+      numberBall.textContent = num;
+      numberBall.style.animationDelay = `${index * 0.1}s`;
+      container.appendChild(numberBall);
+    });
+  }
+
+  function updateProgress() {
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const percentage = (currentDraw / TOTAL_DRAWS) * 100;
+    progressFill.style.width = percentage + '%';
+    progressText.textContent = `${currentDraw} de ${TOTAL_DRAWS} números sorteados`;
+  }
+
+  function markNumberInCartelas(number) {
+    cartelas.forEach(cartela => {
+      if (cartela.numbers.includes(number)) {
+        cartela.markedNumbers.push(number);
+        cartela.score++;
+        const cartelaElement = document.getElementById(`cartela-${cartela.id}`);
+        const numberElement = cartelaElement.querySelector(`[data-number="${number}"]`);
+        if (numberElement) numberElement.classList.add('marked');
+        const scoreElement = cartelaElement.querySelector('.cartela-score');
+        scoreElement.textContent = `Acertos: ${cartela.score}`;
+      }
+    });
+  }
+
+  function endGame() {
+    gameActive = false;
+    document.getElementById('startBtn').disabled = false;
+    const maxScore = Math.max(...cartelas.map(c => c.score));
+    const winners = cartelas.filter(c => c.score === maxScore);
+    winners.forEach(winner => {
+      const cartelaElement = document.getElementById(`cartela-${winner.id}`);
+      cartelaElement.classList.add('winner-highlight');
+    });
+    saveGame(true, winners, maxScore);
+    showResults(winners, maxScore);
+  }
+
+  function showResults(winners, maxScore) {
+    const resultsDiv = document.getElementById('results');
+    const winnersInfo = document.getElementById('winnersInfo');
+    let resultHTML = '';
+    if (winners.length === 1) {
+      resultHTML = `<div class="winner-info">🏆 Cartela Vencedora: Cartela ${winners[0].id} com ${maxScore} acertos!</div>`;
+    } else {
+      const winnerNumbers = winners.map(w => w.id).join(', ');
+      resultHTML = `<div class="winner-info">🏆 Cartelas Vencedoras: Cartelas ${winnerNumbers} com ${maxScore} acertos cada!</div>`;
+    }
+    resultHTML += '<div style="margin-top: 20px;">';
+    cartelas.forEach(cartela => {
+      const isWinner = winners.some(w => w.id === cartela.id);
+      const className = isWinner ? 'cartela-winner' : 'cartela-normal';
+      resultHTML += `<div class="cartela-result ${className}">Cartela ${cartela.id}: ${cartela.score} acertos</div>`;
+    });
+    resultHTML += '</div>';
+    winnersInfo.innerHTML = resultHTML;
+    resultsDiv.style.display = 'block';
+  }
+</script>
+</body>
+</html>
