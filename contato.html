@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formulário para WhatsApp</title>
+  <style>
+    body {
+      background-color: #000;
+      color: orange;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    form {
+      background-color: #111;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 420px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 0 10px orange;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: orange;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 18px;
+      border: 1px solid orange;
+      border-radius: 5px;
+      background-color: #222;
+      color: orange;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: orange;
+      color: black;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #cc7a00;
+    }
+  </style>
+</head>
+<body>
+  <form id="contactForm">
+    <h2>Cadastro para WhatsApp</h2>
+
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required />
+
+    <label for="telefone">Telefone:</label>
+    <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" />
+
+    <label for="pix">Sua chave PIX:</label>
+    <input type="text" id="pix" name="pix" placeholder="Digite sua chave PIX" required />
+
+    <button type="submit">Enviar para WhatsApp</button>
+  </form>
+
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const pix = document.getElementById('pix').value.trim();
+
+      const numeroDestino = '5521985492615';
+
+      const mensagem = `📝 *Novo Cadastro*:%0A` +
+                       `👤 Nome: ${nome}%0A` +
+                       `📱 Telefone: ${telefone}%0A` +
+                       `💰 Sua chave PIX: ${pix}`;
+
+      const url = `https://wa.me/${numeroDestino}?text=${mensagem}`;
+      window.open(url, '_blank');
+    });
+  </script>
+</body>
+</html>
